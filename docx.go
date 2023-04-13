@@ -1,4 +1,4 @@
-package builder
+package html2docx
 
 import (
 	"archive/zip"
@@ -19,7 +19,7 @@ func bytes2string(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-func Build(htmlSource []byte) ([]byte, error) {
+func Convert(htmlSource []byte) ([]byte, error) {
 	w := &bytes.Buffer{}
 	zw := zip.NewWriter(w)
 
