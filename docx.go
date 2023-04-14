@@ -12,19 +12,33 @@ type DocxFile struct {
 	Source []byte
 }
 
-func string2bytes(s string) []byte {
-	return *(*[]byte)(unsafe.Pointer(&s))
+type DocxHeader struct {
+	Width   int
+	Height  int
+	Orient  string
+	Margins DocxHeaderMargins
 }
+
+type DocxHeaderMargins struct {
+	Top    int
+	Right  int
+	Bottom int
+	Left   int
+	Header int
+	Footer int
+	Gutter int
+}
+
 func bytes2string(b []byte) string {
 	return *(*string)(unsafe.Pointer(&b))
 }
 
-func Convert(htmlSource []byte) ([]byte, error) {
+func Convert(source []byte, opts ...Option) ([]byte, error) {
 	w := &bytes.Buffer{}
 	zw := zip.NewWriter(w)
 
 	data := map[string]interface{}{
-		"htmlSource": bytes2string(htmlSource),
+		"htmlSource": bytes2string(source),
 		"width":      12240,
 		"height":     15840,
 		"orient":     "portrait",
@@ -38,6 +52,10 @@ func Convert(htmlSource []byte) ([]byte, error) {
 			"gutter": 0,
 		},
 	}
+	for _, opt := range opts {
+		opt(data)
+	}
+
 	documentXmlBytes, err := template.Parse(template.DocumentXmlBytes, data)
 	if err != nil {
 		return nil, err
